@@ -1,92 +1,643 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>金融计算器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>金融计算器 - 投资理财助手</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-        form { display: flex; flex-direction: column; }
-        input, button { margin: 10px 0; padding: 10px; font-size: 16px; }
-        button { cursor: pointer; background-color: #007BFF; color: white; border: none; }
-        button:hover { background-color: #0056b3; }
-        .result { margin-top: 20px; font-size: 18px; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .wrapper {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon {
+            font-size: 20px;
+        }
+
+        .description {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            padding: 12px;
+            background: #f8f9fa;
+            border-left: 3px solid #667eea;
+            border-radius: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .help-icon {
+            width: 18px;
+            height: 18px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: help;
+            position: relative;
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            margin-bottom: 8px;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .help-icon:hover .tooltip {
+            opacity: 1;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        select {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        input[type="number"]:focus,
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .unit {
+            font-size: 14px;
+            color: #999;
+            min-width: 40px;
+            text-align: right;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-reset {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-reset:active {
+            background: #e0e0e0;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .result-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .result-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .result-unit {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .tab-btn {
+            padding: 10px 16px;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+            font-family: inherit;
+            font-weight: 500;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 30px;
+            padding-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            .header {
+                margin-bottom: 20px;
+                padding-top: 10px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .card {
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .result-value {
+                font-size: 28px;
+            }
+
+            .tabs {
+                gap: 4px;
+            }
+
+            .tab-btn {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>现代金融计算器</h1>
-    <form id="calculator">
-        <h2>净现值(NPV)计算</h2>
-        <input type="number" id="cashFlow" placeholder="现金流" required>
-        <input type="number" id="rate" placeholder="折现率 (如 0.1)" required>
-        <input type="number" id="periods" placeholder="期数" required>
-        <button type="button" onclick="calculateNPV()">计算 NPV</button>
-        <div class="result" id="npvResult"></div>
+    <div class="wrapper">
+        <div class="header">
+            <h1>💰 金融计算器</h1>
+            <p>让理财变得简单易懂</p>
+        </div>
 
-        <h2>内部收益率(IRR)计算</h2>
-        <input type="text" id="irrCashFlows" placeholder="现金流 (用逗号分隔)" required>
-        <button type="button" onclick="calculateIRR()">计算 IRR</button>
-        <div class="result" id="irrResult"></div>
+        <div class="tabs" id="tabs">
+            <button class="tab-btn active" data-tab="investment">投资收益</button>
+            <button class="tab-btn" data-tab="loan">贷款计算</button>
+            <button class="tab-btn" data-tab="savings">储蓄规划</button>
+        </div>
 
-        <h2>现值(PV)计算</h2>
-        <input type="number" id="futureValue" placeholder="未来价值" required>
-        <input type="number" id="pvRate" placeholder="折现率 (如 0.1)" required>
-        <input type="number" id="pvPeriods" placeholder="期数" required>
-        <button type="button" onclick="calculatePV()">计算 PV</button>
-        <div class="result" id="pvResult"></div>
+        <div class="tab-content active" id="investment">
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">📈</span>
+                    投资未来价值
+                </div>
+                <div class="description">
+                    想知道你的钱在若干年后会值多少？填入初始金额、年利率和年数，我们帮你算。
+                </div>
 
-        <h2>未来价值(FV)计算</h2>
-        <input type="number" id="presentValue" placeholder="现值" required>
-        <input type="number" id="fvRate" placeholder="利率 (如 0.1)" required>
-        <input type="number" id="fvPeriods" placeholder="期数" required>
-        <button type="button" onclick="calculateFV()">计算 FV</button>
-        <div class="result" id="fvResult"></div>
-    </form>
+                <div class="form-group">
+                    <div class="input-label">
+                        初始投资金额
+                        <div class="help-icon">
+                            ?
+                            <div class="tooltip">你现在想投资的总金额</div>
+                        </div>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="number" id="investment-amount" placeholder="输入金额" min="0" step="0.01">
+                        <span class="unit">元</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-label">
+                        预期年回报率
+                        <div class="help-icon">
+                            ?
+                            <div class="tooltip">每年的收益百分比，如5%输入5</div>
+                        </div>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="number" id="investment-rate" placeholder="输入百分比" min="0" step="0.1">
+                        <span class="unit">%</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-label">
+                        投资年数
+                        <div class="help-icon">
+                            ?
+                            <div class="tooltip">你计划投资多少年</div>
+                        </div>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="number" id="investment-years" placeholder="输入年数" min="0" step="1">
+                        <span class="unit">年</span>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="calculateInvestment()">计算结果</button>
+                    <button class="btn btn-reset" onclick="resetForm('investment')">重置</button>
+                </div>
+
+                <div class="result-box" id="investment-result">
+                    <div class="result-label">投资后的总价值</div>
+                    <div class="result-value" id="investment-value">0</div>
+                    <div class="result-unit">元</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="loan">
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">🏦</span>
+                    贷款还款计算
+                </div>
+                <div class="description">
+                    申请贷款或房贷？输入贷款金额、利率和期限，看看你需要还多少钱。
+                </div>
+
+                <div class="form-group">
+                    <div class="input-label">
+                        贷款金额
+                        <div class="help-icon">
+                            ?
+                            <div class="tooltip">你要借的总金额</div>
+                        </div>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="number" id="loan-amount" placeholder="输入金额" min="0" step="0.01">
+                        <span class="unit">元</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-label">
+                        年利率
+                        <div class="help-icon">
+                            ?
+                            <div class="tooltip">银行每年收取的利息百分比</div>
+                        </div>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="number" id="loan-rate" placeholder="输入百分比" min="0" step="0.1">
+                        <span class="unit">%</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-label">
+                        还款年数
+                        <div class="help-icon">
+                            ?
+                            <div class="tooltip">多少年还清贷款</div>
+                        </div>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="number" id="loan-years" placeholder="输入年数" min="0" step="1">
+                        <span class="unit">年</span>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="calculateLoan()">计算结果</button>
+                    <button class="btn btn-reset" onclick="resetForm('loan')">重置</button>
+                </div>
+
+                <div class="result-box" id="loan-result">
+                    <div class="result-label">总需还款</div>
+                    <div class="result-value" id="loan-value">0</div>
+                    <div class="result-unit">元</div>
+                    <div style="margin-top: 12px; font-size: 13px; opacity: 0.9;">
+                        利息：<span id="loan-interest">0</span> 元 | 月供：<span id="loan-monthly">0</span> 元
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="savings">
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">🎯</span>
+                    定期储蓄目标
+                </div>
+                <div class="description">
+                    想要存一笔钱？告诉我们目标金额、每月存入和利率，计算需要多久才能达成。
+                </div>
+
+                <div class="form-group">
+                    <div class="input-label">
+                        储蓄目标金额
+                        <div class="help-icon">
+                            ?
+                            <div class="tooltip">你想存到的总金额</div>
+                        </div>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="number" id="savings-target" placeholder="输入金额" min="0" step="0.01">
+                        <span class="unit">元</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-label">
+                        每月存入金额
+                        <div class="help-icon">
+                            ?
+                            <div class="tooltip">你每个月能存多少钱</div>
+                        </div>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="number" id="savings-monthly" placeholder="输入金额" min="0" step="0.01">
+                        <span class="unit">元</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="input-label">
+                        年利率
+                        <div class="help-icon">
+                            ?
+                            <div class="tooltip">银行给你的年利息百分比（如果没有就填0）</div>
+                        </div>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="number" id="savings-rate" placeholder="输入百分比" min="0" step="0.1">
+                        <span class="unit">%</span>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="calculateSavings()">计算结果</button>
+                    <button class="btn btn-reset" onclick="resetForm('savings')">重置</button>
+                </div>
+
+                <div class="result-box" id="savings-result">
+                    <div class="result-label">需要存款月数</div>
+                    <div class="result-value" id="savings-months">0</div>
+                    <div class="result-unit">个月（约<span id="savings-years">0</span>年）</div>
+                    <div style="margin-top: 12px; font-size: 13px; opacity: 0.9;">
+                        获得利息：<span id="savings-interest">0</span> 元
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>💡 提示：计算结果仅供参考，实际情况可能有所不同</p>
+        </div>
+    </div>
 
     <script>
-        function calculateNPV() {
-            const cashFlow = parseFloat(document.getElementById('cashFlow').value);
-            const rate = parseFloat(document.getElementById('rate').value);
-            const periods = parseInt(document.getElementById('periods').value);
-            const npv = cashFlow / Math.pow(1 + rate, periods);
-            document.getElementById('npvResult').innerText = 'NPV: ' + npv.toFixed(2);
-        }
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabName = this.dataset.tab;
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                document.getElementById(tabName).classList.add('active');
+                this.classList.add('active');
+            });
+        });
 
-        function calculateIRR() {
-            const cashFlows = document.getElementById('irrCashFlows').value.split(',').map(Number);
-            const irr = IRR(cashFlows);
-            document.getElementById('irrResult').innerText = 'IRR: ' + (irr * 100).toFixed(2) + '%';
-        }
+        function calculateInvestment() {
+            const amount = parseFloat(document.getElementById('investment-amount').value);
+            const rate = parseFloat(document.getElementById('investment-rate').value) / 100;
+            const years = parseInt(document.getElementById('investment-years').value);
 
-        function calculatePV() {
-            const futureValue = parseFloat(document.getElementById('futureValue').value);
-            const rate = parseFloat(document.getElementById('pvRate').value);
-            const periods = parseInt(document.getElementById('pvPeriods').value);
-            const pv = futureValue / Math.pow(1 + rate, periods);
-            document.getElementById('pvResult').innerText = 'PV: ' + pv.toFixed(2);
-        }
-
-        function calculateFV() {
-            const presentValue = parseFloat(document.getElementById('presentValue').value);
-            const rate = parseFloat(document.getElementById('fvRate').value);
-            const periods = parseInt(document.getElementById('fvPeriods').value);
-            const fv = presentValue * Math.pow(1 + rate, periods);
-            document.getElementById('fvResult').innerText = 'FV: ' + fv.toFixed(2);
-        }
-
-        function IRR(cashFlows) {
-            // Simple IRR calculation using Newton-Raphson method
-            const x0 = 0.1;
-            const iterations = 100;
-            const tol = 1e-6;
-            let x = x0;
-            for (let i = 0; i < iterations; i++) {
-                const f = cashFlows.reduce((sum, cf, t) => sum + cf / Math.pow(1 + x, t), 0);
-                const df = cashFlows.reduce((sum, cf, t) => sum - t * cf / Math.pow(1 + x, t + 1), 0);
-                x -= f / df;
-                if (Math.abs(f) < tol) break;
+            if (!amount || !years || isNaN(amount) || isNaN(years)) {
+                alert('请填入所有信息');
+                return;
             }
-            return x;
+
+            const result = amount * Math.pow(1 + rate, years);
+            document.getElementById('investment-value').textContent = result.toFixed(2);
+            document.getElementById('investment-result').classList.add('show');
+        }
+
+        function calculateLoan() {
+            const amount = parseFloat(document.getElementById('loan-amount').value);
+            const rate = parseFloat(document.getElementById('loan-rate').value) / 100 / 12;
+            const years = parseInt(document.getElementById('loan-years').value);
+            const months = years * 12;
+
+            if (!amount || !years || isNaN(amount) || isNaN(years)) {
+                alert('请填入所有信息');
+                return;
+            }
+
+            const monthly = amount * rate * Math.pow(1 + rate, months) / (Math.pow(1 + rate, months) - 1) || amount / months;
+            const totalPayment = monthly * months;
+            const interest = totalPayment - amount;
+
+            document.getElementById('loan-value').textContent = totalPayment.toFixed(2);
+            document.getElementById('loan-interest').textContent = interest.toFixed(2);
+            document.getElementById('loan-monthly').textContent = monthly.toFixed(2);
+            document.getElementById('loan-result').classList.add('show');
+        }
+
+        function calculateSavings() {
+            const target = parseFloat(document.getElementById('savings-target').value);
+            const monthly = parseFloat(document.getElementById('savings-monthly').value);
+            const rate = parseFloat(document.getElementById('savings-rate').value) / 100 / 12;
+
+            if (!target || !monthly || isNaN(target) || isNaN(monthly) || monthly <= 0) {
+                alert('请填入所有信息');
+                return;
+            }
+
+            let total = 0;
+            let months = 0;
+            let interest = 0;
+
+            while (total < target && months < 1200) {
+                total = total * (1 + rate) + monthly;
+                months++;
+                interest = total - (monthly * months);
+            }
+
+            const years = Math.floor(months / 12);
+            const remainingMonths = months % 12;
+
+            document.getElementById('savings-months').textContent = months;
+            document.getElementById('savings-years').textContent = years + (remainingMonths > 0 ? '.' + remainingMonths : '');
+            document.getElementById('savings-interest').textContent = interest.toFixed(2);
+            document.getElementById('savings-result').classList.add('show');
+        }
+
+        function resetForm(type) {
+            if (type === 'investment') {
+                document.getElementById('investment-amount').value = '';
+                document.getElementById('investment-rate').value = '';
+                document.getElementById('investment-years').value = '';
+                document.getElementById('investment-result').classList.remove('show');
+            } else if (type === 'loan') {
+                document.getElementById('loan-amount').value = '';
+                document.getElementById('loan-rate').value = '';
+                document.getElementById('loan-years').value = '';
+                document.getElementById('loan-result').classList.remove('show');
+            } else if (type === 'savings') {
+                document.getElementById('savings-target').value = '';
+                document.getElementById('savings-monthly').value = '';
+                document.getElementById('savings-rate').value = '';
+                document.getElementById('savings-result').classList.remove('show');
+            }
         }
     </script>
 </body>
