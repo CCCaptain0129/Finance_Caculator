@@ -1,37 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Calculator</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>金融计算器</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        form { display: flex; flex-direction: column; }
+        input, button { margin: 10px 0; padding: 10px; font-size: 16px; }
+        button { cursor: pointer; background-color: #007BFF; color: white; border: none; }
+        button:hover { background-color: #0056b3; }
+        .result { margin-top: 20px; font-size: 18px; }
+    </style>
 </head>
 <body>
-    <div class="calculator">
-        <h1>Financial Calculator</h1>
-        <form id="calc-form">
-            <label for="amount">Amount:</label>
-            <input type="number" id="amount" required>
+    <h1>现代金融计算器</h1>
+    <form id="calculator">
+        <h2>净现值(NPV)计算</h2>
+        <input type="number" id="cashFlow" placeholder="现金流" required>
+        <input type="number" id="rate" placeholder="折现率 (如 0.1)" required>
+        <input type="number" id="periods" placeholder="期数" required>
+        <button type="button" onclick="calculateNPV()">计算 NPV</button>
+        <div class="result" id="npvResult"></div>
 
-            <label for="interest">Interest Rate (%):</label>
-            <input type="number" step="0.01" id="interest" required>
+        <h2>内部收益率(IRR)计算</h2>
+        <input type="text" id="irrCashFlows" placeholder="现金流 (用逗号分隔)" required>
+        <button type="button" onclick="calculateIRR()">计算 IRR</button>
+        <div class="result" id="irrResult"></div>
 
-            <label for="years">Years:</label>
-            <input type="number" id="years" required>
+        <h2>现值(PV)计算</h2>
+        <input type="number" id="futureValue" placeholder="未来价值" required>
+        <input type="number" id="pvRate" placeholder="折现率 (如 0.1)" required>
+        <input type="number" id="pvPeriods" placeholder="期数" required>
+        <button type="button" onclick="calculatePV()">计算 PV</button>
+        <div class="result" id="pvResult"></div>
 
-            <button type="submit">Calculate</button>
-        </form>
-        <h2 id="result">Result will be shown here</h2>
-    </div>
-<script>
-    document.getElementById('calc-form').onsubmit = function(event) {
-        event.preventDefault();
-        const amount = parseFloat(document.getElementById('amount').value);
-        const interest = parseFloat(document.getElementById('interest').value) / 100;
-        const years = parseInt(document.getElementById('years').value);
-        const result = amount * Math.pow(1 + interest, years);
-        document.getElementById('result').textContent = `Future Value: $${result.toFixed(2)}`;
-    };
-</script>
+        <h2>未来价值(FV)计算</h2>
+        <input type="number" id="presentValue" placeholder="现值" required>
+        <input type="number" id="fvRate" placeholder="利率 (如 0.1)" required>
+        <input type="number" id="fvPeriods" placeholder="期数" required>
+        <button type="button" onclick="calculateFV()">计算 FV</button>
+        <div class="result" id="fvResult"></div>
+    </form>
+
+    <script>
+        function calculateNPV() {
+            const cashFlow = parseFloat(document.getElementById('cashFlow').value);
+            const rate = parseFloat(document.getElementById('rate').value);
+            const periods = parseInt(document.getElementById('periods').value);
+            const npv = cashFlow / Math.pow(1 + rate, periods);
+            document.getElementById('npvResult').innerText = 'NPV: ' + npv.toFixed(2);
+        }
+
+        function calculateIRR() {
+            const cashFlows = document.getElementById('irrCashFlows').value.split(',').map(Number);
+            const irr = IRR(cashFlows);
+            document.getElementById('irrResult').innerText = 'IRR: ' + (irr * 100).toFixed(2) + '%';
+        }
+
+        function calculatePV() {
+            const futureValue = parseFloat(document.getElementById('futureValue').value);
+            const rate = parseFloat(document.getElementById('pvRate').value);
+            const periods = parseInt(document.getElementById('pvPeriods').value);
+            const pv = futureValue / Math.pow(1 + rate, periods);
+            document.getElementById('pvResult').innerText = 'PV: ' + pv.toFixed(2);
+        }
+
+        function calculateFV() {
+            const presentValue = parseFloat(document.getElementById('presentValue').value);
+            const rate = parseFloat(document.getElementById('fvRate').value);
+            const periods = parseInt(document.getElementById('fvPeriods').value);
+            const fv = presentValue * Math.pow(1 + rate, periods);
+            document.getElementById('fvResult').innerText = 'FV: ' + fv.toFixed(2);
+        }
+
+        function IRR(cashFlows) {
+            // Simple IRR calculation using Newton-Raphson method
+            const x0 = 0.1;
+            const iterations = 100;
+            const tol = 1e-6;
+            let x = x0;
+            for (let i = 0; i < iterations; i++) {
+                const f = cashFlows.reduce((sum, cf, t) => sum + cf / Math.pow(1 + x, t), 0);
+                const df = cashFlows.reduce((sum, cf, t) => sum - t * cf / Math.pow(1 + x, t + 1), 0);
+                x -= f / df;
+                if (Math.abs(f) < tol) break;
+            }
+            return x;
+        }
+    </script>
 </body>
 </html>
