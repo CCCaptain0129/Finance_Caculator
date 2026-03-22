@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级 DCF 估值计算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        h2 {
+            color: #555;
+            margin-top: 20px;
+        }
+        p {
+            font-size: 14px;
+            color: #555;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .result p {
+            margin: 5px 0;
+        }
+        .info-box {
+            background-color: #e8f4ff;
+            border: 1px solid #b3d7ff;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .info-box h3 {
+            margin-top: 0;
+            color: #007BFF;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .nav-buttons a {
+            text-decoration: none;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 16px;
+        }
+        .nav-buttons a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <h1>高级 DCF 估值计算器</h1>
+
+    <!-- 信息介绍框 -->
+    <div class="info-box">
+        <h3>为什么需要计算 DCF？</h3>
+        <p>折现现金流（Discounted Cash Flow，DCF）是一种常用的估值工具，尤其比较适合用来估算自由现金流股票的内在价值，用内在价值与现在的股价进行对比，找到被市场低估的企业，就可能存在投资机会。与市场波动可能导致的短期股价变化不同，DCF 通过企业未来的现金流数据，帮助我们了解企业的长期投资价值。</p>
+        <p><strong>DCF 的意义：</strong></p>
+        <ul>
+            <li>通过评估企业未来的现金流，计算其现值，得出企业的内在价值。</li>
+            <li>将内在价值与当前市场价格进行对比，帮助判断股票是被低估还是高估。</li>
+            <li>为长期投资决策提供科学依据，而非仅依赖市场情绪或短期价格波动。</li>
+        </ul>
+    </div>
+
+    <!-- 计算方法介绍 -->
+    <div class="info-box">
+        <h3>如何通过 DCF 计算每股估值？</h3>
+        <p>DCF 的核心是将企业未来的自由现金流（FCF）折现到当前，通过以下步骤估算每股价值：</p>
+        <ol>
+            <li>
+                <strong>计算 WACC（加权平均资本成本）：</strong>  
+                衡量企业通过股权和债务融资的平均成本，作为折现率。公式如下：  
+                <p style="font-family: monospace;">WACC = (E/V) × Re + (D/V) × Rd × (1 - Tc)</p>
+                <ul>
+                    <li><strong>E:</strong> 股权市场价值</li>
+                    <li><strong>D:</strong> 债务市场价值</li>
+                    <li><strong>V:</strong> 总价值 (E + D)</li>
+                    <li><strong>Re:</strong> 股权成本</li>
+                    <li><strong>Rd:</strong> 债务成本</li>
+                    <li><strong>Tc:</strong> 企业税率</li>
+                </ul>
+            </li>
+            <li>
+                <strong>计算 FCF（自由现金流）：</strong>  
+                企业从运营中产生的现金减去资本支出，公式如下：  
+                <p style="font-family: monospace;">FCF = 经营活动现金流 - 资本支出</p>
+            </li>
+            <li>
+                <strong>折现未来现金流：</strong>  
+                将未来每年的 FCF 按 WACC 折现到当前，计算现值。公式如下：  
+                <p style="font-family: monospace;">DCF = Σ(FCF / (1 + WACC)^t) + 终值</p>
+                其中，终值（Terminal Value）是预测期结束后的长期现金流现值，通常用以下公式计算：  
+                <p style="font-family: monospace;">终值 = (最后一年 FCF × (1 + 永续增长率)) / (WACC - 永续增长率)</p>
+            </li>
+            <li>
+                <strong>计算股东权益价值：</strong>  
+                企业价值（EV）扣除净债务（总债务 - 现金及现金等价物），得到股东权益价值：  
+                <p style="font-family: monospace;">股东权益价值 = 企业价值 - 净债务</p>
+            </li>
+            <li>
+                <strong>计算每股价值：</strong>  
+                将股东权益价值分摊到总股本上，得出每股内在价值：  
+                <p style="font-family: monospace;">每股价值 = 股东权益价值 ÷ 总股本</p>
+            </li>
+        </ol>
+    </div>
+
+    <!-- 对比分析框 -->
+    <div class="info-box">
+        <h3>如何使用每股估值指导投资？</h3>
+        <p>DCF 计算得出的每股估值，是企业内在价值的反映。通过与当前市场股价进行对比，投资者可以得出以下结论：</p>
+        <ul>
+            <li><strong>如果 DCF 每股估值 > 市场股价：</strong> 说明股票被低估，可能是一个投资机会。</li>
+            <li><strong>如果 DCF 每股估值 < 市场股价：</strong> 说明股票被高估，需要谨慎投资。</li>
+        </ul>
+        <p><strong>注意事项：</strong></p>
+        <ul>
+            <li>DCF 模型高度依赖于输入数据（例如 FCF、WACC 和增长率），请务必确保数据合理性。</li>
+            <li>市场价格可能受短期因素影响，DCF 模型更适用于长期投资分析。</li>
+        </ul>
+    </div>
+</div>
+
+        <!-- 导航按钮 -->
+        <div class="nav-buttons">
+            <a href="/dcf_calculator.html"> DCF 估值计算器</a>
+            <a href="/per_share.html">计算每股估值</a>
+        </div>
+    </div>
+</body>
+</html>
