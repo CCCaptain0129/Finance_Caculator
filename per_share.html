@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DCF 估值计算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        h2 {
+            color: #555;
+            margin-top: 20px;
+        }
+        p {
+            font-size: 14px;
+            color: #555;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .result p {
+            margin: 5px 0;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .nav-buttons a {
+            text-decoration: none;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 16px;
+        }
+        .nav-buttons a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DCF 估值计算器</h1>
+
+        <h2>步骤 6：计算每股价值</h2>
+        <form id="per-share-form">
+            <label for="enterprise-value">企业价值 (EV)：</label>
+            <p>请输入通过 DCF 模型计算得出的企业价值（单位：亿元）。</p>
+            <input type="number" id="enterprise-value" placeholder="请输入企业价值" step="any" required>
+
+            <label for="total-debt">总债务：</label>
+            <p>请输入公司总债务（单位：亿元）。</p>
+            <input type="number" id="total-debt" placeholder="请输入总债务" step="any" required>
+
+            <label for="cash-equivalents">现金及现金等价物：</label>
+            <p>请输入公司持有的现金及现金等价物（单位：亿元）。</p>
+            <input type="number" id="cash-equivalents" placeholder="请输入现金及现金等价物" step="any" required>
+
+            <label for="shares-outstanding">总股本：</label>
+            <p>请输入公司发行的总股份数量（单位：亿股）。</p>
+            <input type="number" id="shares-outstanding" placeholder="请输入总股本" step="any" required>
+
+            <button type="button" onclick="calculatePerShareValue()">计算每股价值</button>
+        </form>
+
+        <div class="result" id="per-share-result" style="display: none;">
+            <p id="equity-value-output"></p>
+            <p id="per-share-value-output"></p>
+        </div>
+        <!-- 导航按钮 -->
+        <div class="nav-buttons">
+            <a href="/index.html"> 返回首页</a>
+            <a href="/dcf_calculator.html">计算DCF</a>
+        </div>
+    </div>
+
+    <script>
+        function calculatePerShareValue() {
+            // 获取用户输入
+            const enterpriseValue = parseFloat(document.getElementById("enterprise-value").value);
+            const totalDebt = parseFloat(document.getElementById("total-debt").value);
+            const cashEquivalents = parseFloat(document.getElementById("cash-equivalents").value);
+            const sharesOutstanding = parseFloat(document.getElementById("shares-outstanding").value);
+
+            // 计算净债务
+            const netDebt = totalDebt - cashEquivalents;
+
+            // 计算股东权益价值
+            const equityValue = enterpriseValue - netDebt;
+
+            // 计算每股价值
+            const perShareValue = equityValue / sharesOutstanding;
+
+            // 显示结果
+            document.getElementById("equity-value-output").innerText = `股东权益价值：${equityValue.toFixed(2)} 亿元`;
+            document.getElementById("per-share-value-output").innerText = `每股价值：${perShareValue.toFixed(2)} 元`;
+            document.getElementById("per-share-result").style.display = "block";
+        }
+    </script>
+</body>
+</html>
