@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高级 DCF 估值计算器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        h2 {
+            color: #555;
+            margin-top: 20px;
+        }
+        p {
+            font-size: 14px;
+            color: #555;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #007BFF;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .result p {
+            margin: 5px 0;
+        }
+        .info-box {
+            background-color: #e8f4ff;
+            border: 1px solid #b3d7ff;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .info-box h3 {
+            margin-top: 0;
+            color: #007BFF;
+        }
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        .nav-buttons a {
+            text-decoration: none;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 16px;
+        }
+        .nav-buttons a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DCF 估值计算器</h1>
+
+       
+
+
+          <h2>步骤 1：计算股权成本（Re）</h2>
+        <form id="equity-cost-form">
+            <label for="risk-free-rate">无风险利率 (Rf, %)：</label>
+            <p>请输入无风险利率（例如，国债收益率，2 表示 2%）。</p>
+            <input type="number" id="risk-free-rate" placeholder="请输入 Rf" step="any" required>
+
+            <label for="beta">公司 Beta 系数 (β)：</label>
+            <p>请输入公司的 Beta 系数（例如，1.2 表示公司波动率高于市场）。</p>
+            <input type="number" id="beta" placeholder="请输入 β" step="any" required>
+
+            <label for="market-return">市场预期收益率 (Rm, %)：</label>
+            <p>请输入市场的预期收益率（例如，8 表示 8%）。</p>
+            <input type="number" id="market-return" placeholder="请输入 Rm" step="any" required>
+
+            <button type="button" onclick="calculateEquityCost()">计算股权成本</button>
+        </form>
+
+        <div class="result" id="equity-cost-result" style="display: none;">
+            <p id="equity-cost-output"></p>
+        </div>
+
+        <h2>步骤 2：计算债务成本（Rd）</h2>
+        <form id="debt-cost-form">
+            <label for="average-debt-rate">平均债务利率 (%, Rd)：</label>
+            <p>请输入公司的平均债务利率（例如，5 表示 5%）。</p>
+            <input type="number" id="average-debt-rate" placeholder="请输入平均债务利率" step="any" required>
+
+            <label for="tax-rate">企业税率 (Tc, %)：</label>
+            <p>请输入公司的税率（例如，25 表示 25%）。</p>
+            <input type="number" id="tax-rate" placeholder="请输入企业税率" step="any" required>
+
+            <button type="button" onclick="calculateDebtCost()">计算债务成本</button>
+        </form>
+
+        <div class="result" id="debt-cost-result" style="display: none;">
+            <p id="debt-cost-output"></p>
+        </div>
+
+        <h2>步骤 3：计算加权平均资本成本（WACC）</h2>
+
+        <form id="wacc-form">
+            <label for="equity-value">股权市场价值 (E)：</label>
+            <p>请输入公司的股权市场价值（以人民币亿元为单位，例如，1000 表示 1000 亿元）。</p>
+            <input type="number" id="equity-value" placeholder="请输入股权市场价值" step="any" required>
+
+            <label for="debt-value">债务市场价值 (D)：</label>
+             <p>请输入公司的债务市场价值（以人民币亿元为单位，例如，500 表示 500 亿元）。</p>
+            <input type="number" id="debt-value" placeholder="请输入债务市场价值" step="any" required>
+
+            <label for="cost-of-equity">股权成本 (Re, %)：</label>
+            <p>输入预估的股权成本，单位为百分比（例如，10 表示 10%）。</p>
+            <input type="number" id="cost-of-equity" placeholder="请输入股权成本" step="any" required>
+
+            <label for="cost-of-debt">债务成本 (Rd, %)：</label>
+            <p>输入公司的平均债务利率，单位为百分比（例如，5 表示 5%）。</p>
+            <input type="number" id="cost-of-debt" placeholder="请输入债务成本" step="any" required>
+
+            <label for="tax-rate">企业税率 (Tc, %)：</label>
+            <p>输入公司适用的税率，单位为百分比（例如，25 表示 25%）。</p>
+            <input type="number" id="tax-rate" placeholder="请输入税率" step="any" required>
+
+            <button type="button" onclick="calculateWACC()">计算 WACC</button>
+        </form>
+
+        <div class="result" id="wacc-result" style="display: none;">
+            <p id="wacc-output"></p>
+        </div>
+
+        <h2>步骤 4：计算自由现金流 (FCF)</h2>
+        <form id="fcf-form">
+            <label for="operating-cash-flow">经营活动现金流：</label>
+            <p>输入企业经营活动产生的现金流，以人民币亿元为单位，（例如，300 表示 300 亿元）。</p>
+            <input type="number" id="operating-cash-flow" placeholder="请输入经营活动现金流" step="any" required>
+
+            <label for="capex">资本支出 (CAPEX)：</label>
+            <p>输入企业的资本支出总额，以人民币亿元为单位，（例如，50 表示 50 亿元）。</p>
+            <input type="number" id="capex" placeholder="请输入资本支出" step="any" required>
+
+            <button type="button" onclick="calculateFCF()">计算 FCF</button>
+        </form>
+
+        <div class="result" id="fcf-result" style="display: none;">
+            <p id="fcf-output"></p>
+        </div>
+
+        <h2>步骤 5：进行 DCF 估值</h2>
+        <form id="dcf-form">
+            <label for="fcf-input">当前自由现金流 (FCF)：</label>
+            <p>输入计算得出的 FCF 或手动输入，单位为“亿元”（例如，250 表示 250 亿元）。</p>
+            <input type="number" id="fcf-input" placeholder="使用计算的 FCF 或手动输入" step="any" required>
+            
+            <label for="growth-rate">自由现金流增长率 (%):</label>
+            <p>输入 FCF 的预期年增长率，单位为百分比（例如，5 表示 5%）。</p>
+            <input type="number" id="growth-rate" placeholder="请输入增长率" step="any" required>
+            
+            <label for="discount-rate">折现率 (WACC, %):</label>
+            <p>输入计算得出的 WACC 或手动输入，单位为百分比（例如，8 表示 8%）。</p>
+            <input type="number" id="discount-rate" placeholder="使用计算的 WACC 或手动输入" step="any" required>
+            
+            <label for="terminal-growth-rate">终值增长率 (%):</label>
+            <p>输入 FCF 的长期增长率，单位为百分比（例如，3 表示 3%）。</p>
+            <input type="number" id="terminal-growth-rate" placeholder="请输入终值增长率" step="any" required>
+            
+            <label for="years">预测期 (年)：</label>
+            <p>输入 FCF 的预测年数（例如，5 表示 5 年）。</p>
+            <input type="number" id="years" placeholder="请输入预测期" required>
+            
+            <button type="button" onclick="calculateDCF()">计算 DCF</button>
+        </form>
+
+        <div class="result" id="dcf-result" style="display: none;">
+            <h2>DCF 估值结果</h2>
+            <p id="npv-result"></p>
+            <p id="terminal-value-result"></p>
+            <p id="enterprise-value-result"></p>
+        </div>
+
+        <!-- 导航按钮 -->
+        <div class="nav-buttons">
+            <a href="/index.html"> 返回首页</a>
+            <a href="/per_share.html">计算每股估值</a>
+        </div>
+    </div>
+
+    <script>
+            // 计算股权成本（Re）
+        function calculateEquityCost() {
+            const Rf = parseFloat(document.getElementById("risk-free-rate").value) / 100;
+            const beta = parseFloat(document.getElementById("beta").value);
+            const Rm = parseFloat(document.getElementById("market-return").value) / 100;
+
+            const Re = Rf + beta * (Rm - Rf);
+
+            document.getElementById("equity-cost-output").innerText = `计算的股权成本 (Re)：${(Re * 100).toFixed(2)}%`;
+            document.getElementById("equity-cost-result").style.display = "block";
+        }
+
+        // 计算债务成本（Rd）
+        function calculateDebtCost() {
+            const Rd = parseFloat(document.getElementById("average-debt-rate").value) / 100;
+            const taxRate = parseFloat(document.getElementById("tax-rate").value) / 100;
+
+            const afterTaxRd = Rd * (1 - taxRate);
+
+            document.getElementById("debt-cost-output").innerText = `计算的税后债务成本 (Rd)：${(afterTaxRd * 100).toFixed(2)}%`;
+            document.getElementById("debt-cost-result").style.display = "block";
+        }
+        // 计算加权平均资本成本（WACC）
+        function calculateWACC() {
+            const equityValue = parseFloat(document.getElementById("equity-value").value);
+            const debtValue = parseFloat(document.getElementById("debt-value").value);
+            const costOfEquity = parseFloat(document.getElementById("cost-of-equity").value) / 100;
+            const costOfDebt = parseFloat(document.getElementById("cost-of-debt").value) / 100;
+            const taxRate = parseFloat(document.getElementById("tax-rate").value) / 100;
+
+            const totalValue = equityValue + debtValue;
+            const wacc = (equityValue / totalValue) * costOfEquity + 
+                         (debtValue / totalValue) * costOfDebt * (1 - taxRate);
+
+            document.getElementById("wacc-output").innerText = `计算的 WACC：${(wacc * 100).toFixed(2)}%`;
+            document.getElementById("wacc-result").style.display = "block";
+        }
+        // 计算自由现金流 (FCF)
+
+        function calculateFCF() {
+            const operatingCashFlow = parseFloat(document.getElementById("operating-cash-flow").value);
+            const capex = parseFloat(document.getElementById("capex").value);
+            const fcf = operatingCashFlow - capex;
+
+            document.getElementById("fcf-output").innerText = `计算的 FCF：$${fcf.toFixed(2)} 亿`;
+            document.getElementById("fcf-result").style.display = "block";
+        }
+        // 计算折现现金流 (DCF)
+
+        function calculateDCF() {
+            const fcf = parseFloat(document.getElementById("fcf-input").value);
+            const growthRate = parseFloat(document.getElementById("growth-rate").value) / 100;
+            const discountRate = parseFloat(document.getElementById("discount-rate").value) / 100;
+            const terminalGrowthRate = parseFloat(document.getElementById("terminal-growth-rate").value) / 100;
+            const years = parseInt(document.getElementById("years").value);
+
+            let npv = 0;
+            let projectedFCF = fcf;
+
+            for (let i = 1; i <= years; i++) {
+                projectedFCF *= (1 + growthRate);
+                npv += projectedFCF / Math.pow(1 + discountRate, i);
+            }
+
+            const terminalValue = (projectedFCF * (1 + terminalGrowthRate)) / (discountRate - terminalGrowthRate);
+            const terminalValuePV = terminalValue / Math.pow(1 + discountRate, years);
+            const enterpriseValue = npv + terminalValuePV;
+
+            document.getElementById("npv-result").innerText = `自由现金流净现值 (NPV)：${npv.toFixed(2)} 亿`;
+            document.getElementById("terminal-value-result").innerText = `终值现值：${terminalValuePV.toFixed(2)} 亿`;
+            document.getElementById("enterprise-value-result").innerText = `企业价值 (EV)：${enterpriseValue.toFixed(2)} 亿`;
+            document.getElementById("dcf-result").style.display = "block";
+        }
+    </script>
+</body>
+</html>
